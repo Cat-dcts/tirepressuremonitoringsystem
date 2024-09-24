@@ -11,10 +11,9 @@ class AlarmTest {
 
 	@Test
 	void AlarmOnWhenLowPressureTest() {
-		Alarm alarm = new Alarm();
-		Sensor sensor = mock(Sensor.class);
-		when(sensor.popNextPressurePsiValue()).thenReturn(16.0);
-		alarm.sensor = sensor;
+		Sensor sensor = probeValue(16.0);
+		Alarm alarm = new Alarm(sensor);
+		
 		
 		alarm.check();
 		
@@ -22,39 +21,43 @@ class AlarmTest {
 	}
 
 	@Test
-	void AlarmOnWhenHighPressureTest() {
-		Alarm alarm = new Alarm();
-		Sensor sensor = mock(Sensor.class);
-		when(sensor.popNextPressurePsiValue()).thenReturn(22.0);
-		alarm.sensor = sensor;
-		
-		alarm.check();
-		
-		assertTrue(alarm.isAlarmOn());
-	}
-	
-	@Test
 	void AlarmOffWhenPressureGoodTest() {
-		Alarm alarm = new Alarm();
-		Sensor sensor = mock(Sensor.class);
-		when(sensor.popNextPressurePsiValue()).thenReturn(18.0);
-		alarm.sensor = sensor;
-		
+		Sensor sensor = probeValue(18.0);
+		Alarm alarm = new Alarm(sensor);
 		alarm.check();
 		
 		assertFalse(alarm.isAlarmOn());
 	}
-	
+
 	@Test
 	void AlarmStayOnTest() {
-		Alarm alarm = new Alarm();
-		Sensor sensor = mock(Sensor.class);
-		when(sensor.popNextPressurePsiValue()).thenReturn(16.0,18.0);
-		alarm.sensor = sensor;
-		
+		Sensor sensor = probeValue(16.0,18.0);
+		Alarm alarm = new Alarm(sensor);
 		alarm.check();
 		alarm.check();
 		
 		assertTrue(alarm.isAlarmOn());
+	}
+
+	@Test
+	void AlarmOnWhenHighPressureTest() {
+	
+		Sensor sensor = probeValue(22.0);
+		Alarm alarm = new Alarm(sensor);
+		alarm.check();
+		
+		assertTrue(alarm.isAlarmOn());
+	}
+
+	private Sensor probeValue(double value) {
+		Sensor sensor = mock(PressureSensor.class);
+		when(sensor.probeValue()).thenReturn(value);
+		return sensor;
+	}
+	
+	private Sensor probeValue(double value1,double value2) {
+		Sensor sensor = mock(PressureSensor.class);
+		when(sensor.probeValue()).thenReturn(value1,value2);
+		return sensor;
 	}
 }
